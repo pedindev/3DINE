@@ -6,6 +6,9 @@ class Model3D {
   final String p3dUrl;
   final String glbPath;
   double averageRating;
+  final double price;
+  final String ingredients;
+  final String description;
 
   Model3D({
     required this.id,
@@ -15,5 +18,8 @@ class Model3D {
     required this.p3dUrl,
     required this.glbPath,
     this.averageRating = 0.0,
+    required this.price,
+    required this.ingredients,
+    required this.description,
   });
 }

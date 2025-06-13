@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
+import 'services/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +13,12 @@ void main() async {
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhmdG9hZHRtYnVrbmx3c2dvdGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxNjM4ODgsImV4cCI6MjA2MjczOTg4OH0.8yRNKuPs7gxD0gqTvcbNYM2wM8ssB4drgUGKJDZLoic',
   );
   
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => CartProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

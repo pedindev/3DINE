@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/model_3d.dart';
 import '../services/supabase_rating_service.dart';
 import '../screens/rating_screen.dart';
 import '../screens/model_viewer_screen.dart';
+import '../screens/informacoes_screen.dart';
+import '../services/cart_provider.dart';
 
 class ModelCard extends StatefulWidget {
   final Model3D model;
@@ -92,31 +95,6 @@ class _ModelCardState extends State<ModelCard> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Flexible(
-                            child: Text(
-                              'Categoria: ${_formatCategory(widget.model.category)}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            height: 4,
-                            width: 32,
-                            decoration: BoxDecoration(
-                              color: _getCategoryColor(widget.model.category),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
                           const Icon(Icons.star, color: Colors.amber, size: 18),
                           const SizedBox(width: 4),
                           Text(
@@ -134,56 +112,59 @@ class _ModelCardState extends State<ModelCard> {
               ],
             ),
             const SizedBox(height: 12),
-            // Botões
+            // Botões e Preço
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Botão de avaliação
+                // Botão + Info (esquerda)
                 SizedBox(
                   height: 36,
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.star, size: 18),
-                    label: const Text(
-                      'Avaliar',
-                      style: TextStyle(fontSize: 14),
-                    ),
+                  child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RatingScreen(model: widget.model),
-                        ),
-                      );
-                      _loadAverageRating();
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Botão de visualização 3D
-                SizedBox(
-                  height: 36,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.view_in_ar, size: 18),
-                    label: const Text(
-                      'Visual 3D',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF336633),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      foregroundColor: const Color(0xFF336633),
+                      side: const BorderSide(color: Color(0xFF336633)),
                     ),
                     onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ModelViewerScreen(model: widget.model),
+                          builder: (context) => InformacoesScreen(model: widget.model),
                         ),
                       );
                     },
+                    child: const Text('+ Info'),
+                  ),
+                ),
+                // Botão Add to Cart (centro)
+                SizedBox(
+                  height: 36,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF336633),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      Provider.of<CartProvider>(context, listen: false).addItem(widget.model);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${widget.model.name} adicionado ao carrinho!')),
+                      );
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('Add to '),
+                        const Icon(Icons.shopping_cart, size: 20),
+                      ],
+                    ),
+                  ),
+                ),
+                // Preço (direita)
+                Text(
+                  'R\$ ${widget.model.price.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF336633),
                   ),
                 ),
               ],
@@ -196,29 +177,21 @@ class _ModelCardState extends State<ModelCard> {
   
   String _formatCategory(String category) {
     switch (category) {
-      case 'calcados':
-        return 'Calçados';
-      case 'caixas':
-        return 'Caixas';
-      case 'comidas':
-        return 'Comidas';
-      case 'utensilios':
-        return 'Utensílios';
+      case 'doces':
+        return 'Doces';
+      case 'salgados':
+        return 'Salgados';
       default:
-        return category;
+        return 'Outros';
     }
   }
   
   Color _getCategoryColor(String category) {
     switch (category) {
-      case 'calcados':
-        return const Color(0xFF0000A0); // Azul escuro neon
-      case 'caixas':
-        return const Color(0xFFFF5500); // Laranja neon
-      case 'comidas':
-        return const Color(0xFF7B1FA2); // Roxo
-      case 'utensilios':
-        return const Color(0xFF00796B); // Verde-azulado
+      case 'doces':
+        return const Color(0xFFE57373); // Vermelho claro
+      case 'salgados':
+        return const Color(0xFF81C784); // Verde claro
       default:
         return Colors.grey;
     }
